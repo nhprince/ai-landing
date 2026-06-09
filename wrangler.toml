@@ -1,0 +1,24 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "ai-landing"
+main = "src/index.js"
+compatibility_date = "2026-06-09"
+
+# Workers AI Binding
+[ai]
+binding = "AI"
+
+# KV Namespace for visitor tracking
+[[kv_namespaces]]
+binding = "VISITORS"
+id = "cd1ef0aa272344309363f1ea909e16ee"
+preview_id = "cd1ef0aa272344309363f1ea909e16ee"
+
+# Custom domain route
+[[routes]]
+pattern = "autocommerz.com/*"
+zone_name = "autocommerz.com"
+
+# Environment variables
+[vars]
+SITE_NAME = "AutoCommerz"
+SITE_TAGLINE = "The Future of Commerce"
