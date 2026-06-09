@@ -10,6 +10,8 @@ account_id = "89f7e2d36d8ec57f55770ee400685f53"
 files = {}
 for f in glob.glob(os.path.expanduser('~/ai-landing/src/*.js')):
     name = os.path.basename(f)
+    if name == 'templates.js':
+        continue  # Templates loaded from KV, not bundled
     with open(f) as fh:
         files[name] = fh.read()
 

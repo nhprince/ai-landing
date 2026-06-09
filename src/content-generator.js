@@ -1,8 +1,28 @@
 // Art Content Generator — Optimized for minimal AI costs
 // Strategy: Cache AI responses in KV per style per day
-// Fallback: 50+ template variations per style (zero AI cost)
+// Fallback: 70+ template variations per style stored in KV (zero bundle cost)
+
 import { ART_STYLES, COLOR_PALETTES } from './art-styles.js';
-import { TEMPLATE_VARIATIONS } from './templates.js';
+
+let _templatesCache = null;
+let _templatesCacheTime = 0;
+
+async function getTemplates(kv) {
+  // Cache in memory for 1 hour
+  if (_templatesCache && Date.now() - _templatesCacheTime < 3600000) {
+    return _templatesCache;
+  }
+  try {
+    const raw = await kv.get('templates:v1');
+    if (raw) {
+      _templatesCache = JSON.parse(raw);
+      _templatesCacheTime = Date.now();
+      return _templatesCache;
+    }
+  } catch { /* fall through to fallback */ }
+  // Emergency fallback — empty templates (AI-only mode)
+  return {};
+}
 
 export function pickStyle(visitorId, timestamp) {
   const seed = hash(visitorId + timestamp);
@@ -33,7 +53,8 @@ export async function generateVisit(ai, style, context, kv) {
 
   // Fallback: deterministic template selection (zero AI cost)
   if (!content) {
-    content = pickTemplate(style.id, context.visitorId, context.timestamp);
+    const templates = await getTemplates(kv);
+    content = pickTemplate(style.id, context.visitorId, context.timestamp, templates);
   }
 
   return {
@@ -95,10 +116,27 @@ async function cacheContent(kv, styleId, today, content) {
 }
 
 // ─── Deterministic Template Selection (zero AI cost) ───
-function pickTemplate(styleId, visitorId, timestamp) {
-  const templates = TEMPLATE_VARIATIONS[styleId] || TEMPLATE_VARIATIONS['glassmorphism'];
+function pickTemplate(styleId, visitorId, timestamp, templates) {
+  const styleTemplates = templates[styleId];
+  if (!styleTemplates || styleTemplates.length === 0) {
+    // Ultimate fallback if KV templates not available
+    return {
+      headline: 'Art Is Loading',
+      subheadline: 'Something beautiful is being generated just for you.',
+      cta1: 'Refresh',
+      cta2: 'Wait',
+      word1: 'color',
+      word2: 'light',
+      word3: 'form',
+      word4: 'dream',
+      poem_line1: 'Every pixel holds a story waiting to be told.',
+      poem_line2: 'Art is the language that pixels speak when no one is watching.',
+      poem_line3: 'Refresh and see a new world appear.',
+      footer: 'A generative art experiment running on Cloudflare Workers',
+    };
+  }
   const seed = hash(visitorId + timestamp);
-  return templates[seed % templates.length];
+  return styleTemplates[seed % styleTemplates.length];
 }
 
 function hash(str) {
