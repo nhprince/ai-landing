@@ -12,17 +12,76 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Python
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Deploy via Cloudflare API
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          CF_EMAIL: ${{ secrets.CF_EMAIL }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          python3 << 'PYEOF'
+          import json, urllib.request, urllib.error, os, glob
 
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+          api_key = os.environ['CF_API_KEY']
+          email = os.environ['CF_EMAIL']
+          account_id = os.environ['CF_ACCOUNT_ID']
+
+          # Read all JS files
+          files = {}
+          for f in glob.glob('src/*.js'):
+              name = os.path.basename(f)
+              with open(f) as fh:
+                  files[name] = fh.read()
+
+          boundary = '----FormBoundary7MA4YWxkTrZu0gW'
+
+          def part(name, filename, content, mime='application/javascript+module'):
+              return (
+                  f'--{boundary}\r\n'.encode() +
+                  f'Content-Disposition: form-data; name="{name}"; filename="{filename}"\r\n'.encode() +
+                  f'Content-Type: {mime}\r\n\r\n'.encode() +
+                  content.encode() + b'\r\n'
+              )
+
+          body = b''
+          for name, content in files.items():
+              body += part('modules', name, content)
+
+          metadata = json.dumps({
+              "main_module": "index.js",
+              "compatibility_date": "2026-06-09",
+              "bindings": [
+                  {"type": "ai", "name": "AI"},
+                  {"type": "kv_namespace", "name": "VISITORS", "namespace_id": "cd1ef0aa272344309363f1ea909e16ee"}
+              ]
+          })
+          body += part('metadata', 'metadata.json', metadata, 'application/json')
+          body += f'--{boundary}--\r\n'.encode()
+
+          req = urllib.request.Request(
+              f'https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/scripts/ai-landing',
+              data=body,
+              headers={
+                  'X-Auth-Email': email,
+                  'X-Auth-Key': api_key,
+                  'Content-Type': f'multipart/form-data; boundary={boundary}'
+              },
+              method='PUT'
+          )
+
+          try:
+              resp = urllib.request.urlopen(req, timeout=120)
+              result = json.loads(resp.read())
+              if result.get('success'):
+                  print("✅ Deployed successfully!")
+              else:
+                  print(f"❌ Error: {json.dumps(result.get('errors', []), indent=2)}")
+                  exit(1)
+          except urllib.error.HTTPError as e:
+              print(f"❌ HTTP {e.code}: {e.read().decode()[:500]}")
+              exit(1)
+          PYEOF
