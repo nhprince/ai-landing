@@ -4,8 +4,43 @@ import { generateHTML } from './renderer.js';
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname.startsWith('/_assets') || url.pathname === '/favicon.ico') {
-      return fetch(request);
+
+    // PWA Manifest
+    if (url.pathname === '/manifest.json') {
+      return new Response(JSON.stringify({
+        name: 'Art Experiment',
+        short_name: 'Art',
+        description: 'A generative art experience — every visit shows something different',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#0a0a0f',
+        theme_color: '#0a0a0f',
+        icons: [{
+          src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>",
+          sizes: 'any',
+          type: 'image/svg+xml'
+        }]
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
+
+    // Favicon
+    if (url.pathname === '/favicon.ico') {
+      return new Response(null, { status: 301, headers: { 'Location': "/favicon.svg" } });
+    }
+    if (url.pathname === '/favicon.svg') {
+      return new Response(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>`, {
+        headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' },
+      });
+    }
+
+    // Static assets — return 404
+    if (url.pathname.startsWith('/_assets')) {
+      return new Response(null, { status: 404 });
     }
 
     const ua = request.headers.get('user-agent') || '';
@@ -32,6 +67,7 @@ export default {
         'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'",
         'X-Visitor-Id': visitorId.substring(0, 8),
         'X-Robots-Tag': 'noindex, nofollow',
+        'Link': '</manifest.json>; rel="manifest"',
       },
     });
   },

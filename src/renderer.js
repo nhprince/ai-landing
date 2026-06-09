@@ -5,10 +5,10 @@ export async function generateHTML(ai, context, kv) {
   const style = pickStyle(context.visitorId, context.timestamp);
   const visit = await generateVisit(ai, style, context, kv);
   const fn = RENDERERS[style.id] || RENDERERS['glassmorphism'];
-  return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount);
+  return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount, visit.style);
 }
 
-// Shared head helper — meta tags, OG, theme-color, preconnect
+// Shared head helper — meta tags, OG, theme-color, preconnect, favicon, animations
 function head(title, styleId, palette, lang = 'en') {
   const desc = 'A generative art experience — every visit shows something different';
   const themeColor = palette.bg;
@@ -27,7 +27,8 @@ function head(title, styleId, palette, lang = 'en') {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
-<style>/* Entrance animations */
+<link rel="manifest" href="/manifest.json">
+<style>
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
@@ -35,13 +36,39 @@ function head(title, styleId, palette, lang = 'en') {
 .anim-2{animation:fadeUp .6s ease-out .1s both}
 .anim-3{animation:fadeUp .6s ease-out .2s both}
 .anim-4{animation:fadeUp .6s ease-out .3s both}
-.anim-4{animation:fadeUp .6s ease-out .35s both}
+.anim-5{animation:fadeUp .6s ease-out .35s both}
+#ui-overlay{position:fixed;top:1rem;right:1rem;z-index:99999;display:flex;align-items:center;gap:.5rem;font-family:system-ui,sans-serif;font-size:.75rem;opacity:0;transition:opacity .3s}
+#ui-overlay:hover,#ui-overlay:focus-within{opacity:1}
+#ui-overlay .ui-badge{background:rgba(0,0,0,.6);color:#fff;padding:.35rem .7rem;border-radius:2rem;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1)}
+#ui-overlay .ui-btn{background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.1);padding:.35rem .7rem;border-radius:2rem;cursor:pointer;backdrop-filter:blur(10px);font-size:.75rem;transition:all .2s}
+#ui-overlay .ui-btn:hover{background:rgba(255,255,255,.15)}
+/* Light theme overrides */
+html.light #ui-overlay .ui-badge{background:rgba(255,255,255,.8);color:#000;border-color:rgba(0,0,0,.1)}
+html.light #ui-overlay .ui-btn{background:rgba(255,255,255,.8);color:#000;border-color:rgba(0,0,0,.1)}
+html.light #ui-overlay .ui-btn:hover{background:rgba(255,255,255,.95)}
 </style>`;
+}
+
+// Overlay UI — style indicator + refresh + dark/light + share + keyboard shortcuts
+function overlay(styleName, visitorCount) {
+  return `<div id="ui-overlay" class="anim-5">
+<span class="ui-badge">🎨 ${styleName}</span>
+<button class="ui-btn" id="ui-dark" onclick="document.documentElement.classList.toggle('light');this.textContent=document.documentElement.classList.contains('light')?'☀️':'🌙'" title="Toggle theme">🌙</button>
+<button class="ui-btn" onclick="navigator.clipboard?navigator.clipboard.writeText(location.href):alert(location.href)" title="Copy link">🔗</button>
+<button class="ui-btn" onclick="location.reload()" title="New art (Space/R)">↻ New</button>
+<span class="ui-badge">👤 #${visitorCount}</span>
+</div>
+<script>
+document.addEventListener('keydown',function(e){
+  if(e.code==='Space'||e.code==='KeyR'){e.preventDefault();location.reload()}
+  if(e.code==='KeyD'){document.documentElement.classList.toggle('light');document.getElementById('ui-dark').textContent=document.documentElement.classList.contains('light')?'☀️':'🌙'}
+});
+</script>`;
 }
 
 const R = {
   // ─── 1. CYBERPUNK ───
-  cyberpunk(p, c, vid, n) {
+  cyberpunk(p, c, vid, n, style) {
     return `${head(c.headline, 'cyberpunk', p)}<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"><style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
@@ -68,11 +95,11 @@ h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.8rem,5vw,3.5rem);font-wei
 .bs:hover{background:var(--s);color:#000}
 footer{text-align:center;padding:3rem 2rem;color:var(--m);font-size:0.75rem;border-top:1px solid rgba(0,240,255,0.08);margin-top:4rem}
 @media(max-width:640px){.wrap{padding:4rem 1.5rem 2rem}}
-</style></head><body><div class="grid"></div><div class="wrap anim-1"><div class="tag">// ${c.headline.toLowerCase().replace(/\s+/g,'_')}</div><h1 class="anim-2">${c.headline}</h1><p class="sub anim-3">${c.subheadline}</p><div class="words anim-4"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>— ${c.poem_line3}</p></div><div class="cta-row"><a class="btn bp">${c.cta1} →</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} · #${n}</p></footer></div></body></html>`;
+</style></head><body><div class="grid"></div>${overlay(style.name, n)}<div class="wrap"><div class="tag anim-1">// ${c.headline.toLowerCase().replace(/\s+/g,'_')}</div><h1 class="anim-2">${c.headline}</h1><p class="sub anim-3">${c.subheadline}</p><div class="words anim-4"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-5"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>— ${c.poem_line3}</p></div><div class="cta-row"><a class="btn bp">${c.cta1} →</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} · #${n}</p></footer></div></body></html>`;
   },
 
   // ─── 2. BRUTALIST ───
-  brutalist(p, c, vid, n) {
+  brutalist(p, c, vid, n, style) {
     return `${head(c.headline, 'brutalist', p)}<style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:system-ui,-apple-system,sans-serif;line-height:1.6}
@@ -93,11 +120,11 @@ h1{font-size:clamp(2.5rem,7vw,5rem);font-weight:900;text-transform:uppercase;let
 .bp:hover{background:transparent;color:${p.primary}}
 .bs{border:3px solid ${p.secondary};color:${p.secondary};background:transparent}
 footer{border-top:4px solid ${p.primary};padding:2rem 0;margin-top:3rem;color:${p.muted};font-size:0.85rem}
-</style></head><body><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><strong>${c.footer}</strong> · VISITOR #${n}</footer></div></body></html>`;
+</style></head><body>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><strong>${c.footer}</strong> · VISITOR #${n}</footer></div></body></html>`;
   },
 
   // ─── 3. GLASSMORPHISM ───
-  glassmorphism(p, c, vid, n) {
+  glassmorphism(p, c, vid, n, style) {
     return `${head(c.headline, 'glassmorphism', p)}<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
@@ -123,11 +150,11 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:200;line-height:1.2;letter-spaci
 .bs:hover{background:rgba(255,255,255,0.06)}
 footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-size:0.8rem;font-weight:300}
 @media(max-width:640px){.w{padding:4rem 1.5rem 2rem}}
-</style></head><body><div class="o o1"></div><div class="o o2"></div><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>${c.poem_line3}</p></div><div class="cta-row"><a class="btn bp">${c.cta1} →</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} · #${n}</p></footer></div></body></html>`;
+</style></head><body><div class="o o1"></div><div class="o o2"></div>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p>${c.poem_line3}</p></div><div class="cta-row"><a class="btn bp">${c.cta1} →</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} · #${n}</p></footer></div></body></html>`;
   },
 
   // ─── 4. RETRO PIXEL ───
-  'retro-pixel'(p, c, vid, n) {
+  'retro-pixel'(p, c, vid, n, style) {
     return `${head(c.headline, 'retro-pixel', p)}<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box;image-rendering:pixelated}
 body{background:${p.bg};color:${p.text};font-family:'VT323',monospace;font-size:1.3rem;min-height:100vh}
@@ -149,11 +176,11 @@ h1{font-family:'Press Start 2P',cursive;font-size:clamp(1rem,4vw,2rem);color:${p
 .bp:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
 .bs{background:transparent;color:${p.secondary};border-color:${p.secondary};box-shadow:4px 4px 0 #000}
 footer{text-align:center;padding:2rem;border-top:3px solid ${p.primary};color:${p.muted}}
-</style></head><body><div class="w"><h1 class="anim-1">★ ${c.headline} ★</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} // PLAYER: ${vid} // SCORE: ${n}</p></footer></div></body></html>`;
+</style></head><body>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">★ ${c.headline} ★</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><p>${c.footer} // PLAYER: ${vid} // SCORE: ${n}</p></footer></div></body></html>`;
   },
 
   // ─── 5. EDITORIAL ───
-  editorial(p, c, vid, n) {
+  editorial(p, c, vid, n, style) {
     return `${head(c.headline, 'editorial', p)}<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Source Serif 4',serif;line-height:1.7;font-size:1.05rem}
@@ -174,11 +201,11 @@ h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);font-we
 .bp:hover{background:${p.secondary}}
 .bs{border:1px solid ${p.primary};color:${p.primary};background:transparent}
 footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.85rem;border-top:2px solid ${p.primary};margin-top:3rem}
-</style></head><body><div class="w"><div class="label anim-1">Essay</div><h1 class="anim-2">${c.headline}</h1><p class="sub anim-3">${c.subheadline}</p><div class="words anim-4"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><p><strong>${c.footer}</strong> · Visitor #${n} · © 2026</p></footer></div></body></html>`;
+</style></head><body>${overlay(style.name, n)}<div class="w"><div class="label anim-1">Essay</div><h1 class="anim-2">${c.headline}</h1><p class="sub anim-3">${c.subheadline}</p><div class="words anim-4"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-5"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><div class="bar"><a class="btn bp">${c.cta1}</a><a class="btn bs">${c.cta2}</a></div><footer><p><strong>${c.footer}</strong> · Visitor #${n} · © 2026</p></footer></div></body></html>`;
   },
 
   // ─── 6. JAPANESE MINIMAL ───
-  'minimal-jp'(p, c, vid, n) {
+  'minimal-jp'(p, c, vid, n, style) {
     return `${head(c.headline, 'minimal-jp', p, 'ja')}<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Noto Sans JP',sans-serif;font-weight:300;line-height:1.8;letter-spacing:0.05em;min-height:100vh}
@@ -197,11 +224,11 @@ h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:100;letter-spacing:0.15em;line-h
 .btn{display:inline-block;padding:1rem 3rem;background:transparent;color:${p.text};border:1px solid ${p.text};font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:0.85rem;cursor:pointer;text-decoration:none;letter-spacing:0.1em;transition:all 0.5s;margin-top:2rem}
 .btn:hover{background:${p.text};color:${p.bg}}
 footer{position:absolute;bottom:2rem;color:${p.muted};font-size:0.75rem;font-weight:300;letter-spacing:0.1em}
-</style></head><body><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1}</a><footer><p>${c.footer}</p></footer></div></body></html>`;
+</style></head><body>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1}</a><footer><p>${c.footer}</p></footer></div></body></html>`;
   },
 
   // ─── 7. VAPORWAVE ───
-  vaporwave(p, c, vid, n) {
+  vaporwave(p, c, vid, n, style) {
     return `${head('ＡＥＳＴＨＥＴＩＣ', 'vaporwave', p)}<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(135deg,${p.bg} 0%,#2a1a4e 50%,#1a0a2e 100%);color:${p.text};font-family:'Quicksand',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -221,11 +248,11 @@ h1{font-family:'Righteous',cursive;font-size:clamp(2rem,5vw,4.5rem);background:l
 .btn:hover{transform:scale(1.05);box-shadow:0 0 50px rgba(255,113,206,0.5)}
 footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-size:0.85rem}
 @media(max-width:640px){.w{padding:4rem 1.5rem 2rem}}
-</style></head><body><div class="mesh"></div><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} · 永遠 · #${n}</p></footer></div></body></html>`;
+</style></head><body><div class="mesh"></div>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} · 永遠 · #${n}</p></footer></div></body></html>`;
   },
 
   // ─── 8. ORGANIC ───
-  organic(p, c, vid, n) {
+  organic(p, c, vid, n, style) {
     return `${head(c.headline, 'organic', p)}<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Nunito',sans-serif;line-height:1.6;min-height:100vh}
@@ -245,11 +272,11 @@ h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.15;color:${p.p
 .btn{display:inline-block;padding:1rem 2.5rem;background:${p.primary};color:#fff;border:none;border-radius:2rem;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;transition:all 0.3s;margin-top:2rem}
 .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(45,80,22,0.25)}
 footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.9rem;border-top:1px solid rgba(0,0,0,0.05);margin-top:3rem}
-</style></head><body><div class="b b1"></div><div class="b b2"></div><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">🌿 ${c.word1}</span><span class="word">🍃 ${c.word2}</span><span class="word">🌾 ${c.word3}</span><span class="word">🌻 ${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">— ${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} · Visitor #${n} · 🌍</p></footer></div></body></html>`;
+</style></head><body><div class="b b1"></div><div class="b b2"></div>${overlay(style.name, n)}<div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">🌿 ${c.word1}</span><span class="word">🍃 ${c.word2}</span><span class="word">🌾 ${c.word3}</span><span class="word">🌻 ${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">— ${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} · Visitor #${n} · 🌍</p></footer></div></body></html>`;
   },
 
   // ─── 9. SPACE ───
-  space(p, c, vid, n) {
+  space(p, c, vid, n, style) {
     return `${head(c.headline, 'space', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -271,14 +298,14 @@ h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,4vw,3rem);font-weigh
 .btn{display:block;width:fit-content;margin:2rem auto;padding:1rem 2.5rem;background:linear-gradient(135deg,${p.primary},${p.secondary});color:#fff;border:none;border-radius:4px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;text-decoration:none;letter-spacing:2px;transition:all 0.3s}
 .btn:hover{box-shadow:0 0 40px rgba(74,158,255,0.3)}
 footer{text-align:center;padding:3rem 2rem;color:rgba(74,158,255,0.15);font-size:0.75rem;font-family:'Orbitron',sans-serif;letter-spacing:1px}
-</style></head><body><div id="stars"></div><div class="ring"></div><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} // VISITOR #${n}</p></footer></div><script>
+</style></head><body>${overlay(style.name, n)}<div id="stars"></div><div class="ring"></div><div class="w"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a><footer><p>${c.footer} // VISITOR #${n}</p></footer></div><script>
 const s=document.getElementById('stars');
 for(let i=0;i<150;i++){const x=document.createElement('div');x.className='s';x.style.left=Math.random()*100+'%';x.style.top=Math.random()*100+'%';x.style.setProperty('--d',(2+Math.random()*4)+'s');x.style.animationDelay=Math.random()*5+'s';s.appendChild(x)}
 </script></body></html>`;
   },
 
   // ─── 10. POP ART ───
-  'pop-art'(p, c, vid, n) {
+  'pop-art'(p, c, vid, n, style) {
     return `${head(c.headline, 'pop-art', p)}<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Comic Neue',cursive;line-height:1.5;min-height:100vh}
@@ -299,11 +326,11 @@ h1{font-family:'Bangers',cursive;font-size:clamp(2.5rem,6vw,5rem);color:${p.prim
 .btn{display:inline-block;padding:1rem 2.5rem;background:${p.secondary};color:#fff;border:4px solid #000;font-family:'Bangers',cursive;font-size:1.2rem;cursor:pointer;text-decoration:none;box-shadow:6px 6px 0 #000;transition:all 0.2s;margin-top:1rem}
 .btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
 footer{text-align:center;padding:2rem;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px}
-</style></head><body><div class="dot"></div><div class="w"><div class="panel"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p></div><div class="words anim-3"><div class="word">💥 ${c.word1}</div><div class="word">⚡ ${c.word2}</div><div class="word">🔥 ${c.word3}</div><div class="word">💣 ${c.word4}</div></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1}!</a><footer><p>${c.footer} · VISITOR #${n} · © 2026</p></footer></div></body></html>`;
+</style></head><body><div class="dot"></div>${overlay(style.name, n)}<div class="w"><div class="panel"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p></div><div class="words anim-3"><div class="word">💥 ${c.word1}</div><div class="word">⚡ ${c.word2}</div><div class="word">🔥 ${c.word3}</div><div class="word">💣 ${c.word4}</div></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1}!</a><footer><p>${c.footer} · VISITOR #${n} · © 2026</p></footer></div></body></html>`;
   },
 
   // ─── 11. TERMINAL ───
-  terminal(p, c, vid, n) {
+  terminal(p, c, vid, n, style) {
     return `${head(c.headline, 'terminal', p)}<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.primary};font-family:'Fira Code',monospace;font-size:0.9rem;line-height:1.6;min-height:100vh}
@@ -322,15 +349,15 @@ h1{font-size:clamp(1.2rem,3vw,2rem);color:#fff;margin-bottom:0.5rem;font-weight:
 .word::before{content:'  ';color:${p.accent}}
 .poem{margin:1.5rem 0}
 .poem p{color:rgba(0,255,0,0.5);margin-bottom:0.3rem}
-.poem .sig{color:${p.accent}}}
+.poem .sig{color:${p.accent}}
 .btn{display:inline-block;padding:0.8rem 2rem;background:transparent;color:${p.primary};border:1px solid ${p.primary};font-family:'Fira Code',monospace;font-size:0.85rem;cursor:pointer;text-decoration:none;transition:all 0.3s;margin-top:1rem}
 .btn:hover{background:${p.primary};color:#000}
 .bar{position:fixed;bottom:0;left:0;right:0;padding:0.5rem 2rem;background:rgba(0,255,0,0.03);border-top:1px solid rgba(0,255,0,0.08);font-size:0.7rem;display:flex;justify-content:space-between}
-</style></head><body><div class="w"><div class="s anim-1"><span class="pr">guest@art:~$</span> <span class="cmd">cat /dev/random > /dev/soul</span><br><span class="cm"># decoding beauty from entropy...</span><br><span class="out">✓ signal acquired.</span><br><br><h1>${c.headline}</h1><p class="out">${c.subheadline}</p><br><a class="btn anim-2">${c.cta1} <span style="animation:bl 1s step-end infinite;display:inline-block;width:8px;height:1em;background:${p.primary};vertical-align:middle"></span></a></div><div class="s"><span class="pr">guest@art:~$</span> <span class="cmd">ls -la /vocabulary/</span><br><div class="words"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div></div><div class="s"><span class="pr">guest@art:~$</span> <span class="cmd">cat /var/log/poetry.log</span><br><div class="poem"><p class="out">${c.poem_line1}</p><p class="out">${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div></div><div class="s"><span class="pr">guest@art:~$</span> <span class="cmd">echo "${c.footer}"</span><br><p class="out">${c.footer}</p></div></div><div class="bar"><span>guest@art</span><span>VISITOR #${n}</span><span>PID:$$</span></div></body></html>`;
+</style></head><body>${overlay(style.name, n)}<div class="w"><div class="s anim-1"><span class="pr">guest@art:~$</span> <span class="cmd">cat /dev/random > /dev/soul</span><br><span class="cm"># decoding beauty from entropy...</span><br><span class="out">✓ signal acquired.</span><br><br><h1>${c.headline}</h1><p class="out">${c.subheadline}</p><br><a class="btn anim-2">${c.cta1} <span style="animation:bl 1s step-end infinite;display:inline-block;width:8px;height:1em;background:${p.primary};vertical-align:middle"></span></a></div><div class="s anim-3"><span class="pr">guest@art:~$</span> <span class="cmd">ls -la /vocabulary/</span><br><div class="words"><div class="word">${c.word1}</div><div class="word">${c.word2}</div><div class="word">${c.word3}</div><div class="word">${c.word4}</div></div></div><div class="s anim-4"><span class="pr">guest@art:~$</span> <span class="cmd">cat /var/log/poetry.log</span><br><div class="poem"><p class="out">${c.poem_line1}</p><p class="out">${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div></div><div class="s"><span class="pr">guest@art:~$</span> <span class="cmd">echo "${c.footer}"</span><br><p class="out">${c.footer}</p></div></div><div class="bar"><span>guest@art</span><span>VISITOR #${n}</span><span>PID:$$</span></div></body></html>`;
   },
 
   // ─── 12. WATERCOLOR ───
-  watercolor(p, c, vid, n) {
+  watercolor(p, c, vid, n, style) {
     return `${head(c.headline, 'watercolor', p)}<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Kalam',cursive;line-height:1.7;min-height:100vh;overflow-x:hidden}
@@ -351,7 +378,7 @@ h1{font-family:'Caveat',cursive;font-size:clamp(2.5rem,5vw,4rem);font-weight:700
 .btn{display:inline-block;padding:1rem 2.5rem;background:${p.secondary};color:#fff;border:none;border-radius:2rem;font-family:'Caveat',cursive;font-size:1.3rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.3s;margin-top:1.5rem}
 .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(224,122,95,0.25)}
 footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-family:'Caveat',cursive;font-size:1.1rem}
-</style></head><body><div class="wash w1"></div><div class="wash w2"></div><div class="w"><div class="frame"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a></div><footer><p>${c.footer} · Visitor #${n} · ✿</p></footer></div></body></html>`;
+</style></head><body><div class="wash w1"></div><div class="wash w2"></div>${overlay(style.name, n)}<div class="w"><div class="frame"><h1 class="anim-1">${c.headline}</h1><p class="sub anim-2">${c.subheadline}</p><div class="words anim-3"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem anim-4"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a></div><footer><p>${c.footer} · Visitor #${n} · ✿</p></footer></div></body></html>`;
   },
 };
 
