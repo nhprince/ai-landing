@@ -15,13 +15,13 @@ export default {
     // Track visitor
     const visitorCount = await trackVisitor(env.VISITORS, visitorId, country);
 
-    // Generate completely unique experience
+    // Generate completely unique experience (KV passed for AI caching)
     const html = await generateHTML(env.AI, {
       visitorId,
       visitorCount,
       country,
       timestamp,
-    });
+    }, env.VISITORS);
 
     return new Response(html, {
       headers: {

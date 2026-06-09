@@ -1,9 +1,9 @@
 // Art Page Renderer — 12 unique art experiences, zero branding
 import { pickStyle, generateVisit } from './content-generator.js';
 
-export async function generateHTML(ai, context) {
+export async function generateHTML(ai, context, kv) {
   const style = pickStyle(context.visitorId, context.timestamp);
-  const visit = await generateVisit(ai, style, context);
+  const visit = await generateVisit(ai, style, context, kv);
   const fn = RENDERERS[style.id] || RENDERERS['glassmorphism'];
   return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount);
 }
