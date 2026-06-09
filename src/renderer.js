@@ -269,27 +269,81 @@ for(let i=0;i<150;i++){const x=document.createElement('div');x.className='s';x.s
 
   // ─── 10. POP ART ───
   'pop-art'(p, c, vid, n) {
-    return `${head(c.headline, 'pop-art', p)}<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"><style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:${p.bg};color:${p.text};font-family:'Comic Neue',cursive;line-height:1.5;min-height:100vh}
-.dot{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,0.06) 1px,transparent 1px);background-size:6px 6px}
-.w{max-width:900px;margin:0 auto;padding:4rem 2rem;position:relative}
-.panel{background:#fff;border:4px solid #000;padding:2.5rem;margin:2rem 0;box-shadow:8px 8px 0 #000;position:relative}
-.panel::before{content:'★';position:absolute;top:-15px;left:-15px;background:${p.accent};color:#fff;font-family:'Bangers',cursive;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:3px solid #000;font-size:1.2rem}
-h1{font-family:'Bangers',cursive;font-size:clamp(2.5rem,6vw,5rem);color:${p.primary};text-shadow:4px 4px 0 #000;letter-spacing:2px;line-height:1.1;margin-bottom:1rem}
-.sub{font-size:1.2rem;color:#333;font-weight:700}
-.words{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2rem 0}
+    return `${head(c.headline, 'pop-art', p)}<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet"><style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:${p.bg};color:${p.text};font-family:'Comic Neue',cursive;line-height:1.6;min-height:100vh;overflow-x:hidden}
+/* Animated halftone background */
+.bg-dots{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(circle,rgba(0,0,0,0.07) 1.5px,transparent 1.5px);background-size:8px 8px;animation:drift 20s linear infinite}
+@keyframes drift{0%{background-position:0 0}100%{background-position:20px 20px}}
+/* Color burst rings */
+.burst{position:fixed;pointer-events:none;z-index:0;border-radius:50%;opacity:.08;animation:pulse 6s ease-in-out infinite}
+.b1{width:600px;height:600px;border:6px solid ${p.primary};top:-200px;right:-150px;animation-delay:0s}
+.b2{width:400px;height:400px;border:4px solid ${p.secondary};bottom:-100px;left:-100px;animation-delay:-2s}
+.b3{width:300px;height:300px;border:3px solid ${p.accent};top:40%;left:60%;animation-delay:-4s}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.08}50%{transform:scale(1.08);opacity:.15}}
+/* Main wrapper */
+.w{max-width:960px;margin:0 auto;padding:4rem 2rem;position:relative;z-index:1}
+@media(max-width:640px){.w{padding:2rem 1rem}}
+/* Hero panel — the main comic frame */
+.hero{background:#fff;border:5px solid #000;padding:3rem;margin:2.5rem 0;box-shadow:12px 12px 0 #000;position:relative}
+.hero::before{content:'★';position:absolute;top:-18px;left:-18px;background:${p.accent};color:#fff;font-family:'Bangers',cursive;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:4px solid #000;font-size:1.4rem;transform:rotate(-12deg)}
+.hero::after{content:'';position:absolute;bottom:-5px;right:-5px;width:100%;height:100%;background:${p.primary};z-index:-1;border:5px solid #000}
+/* Headline — big comic book splash */
+h1{font-family:'Bangers',cursive;font-size:clamp(2.8rem,7vw,5.5rem);color:${p.primary};text-shadow:5px 5px 0 #000;-webkit-text-stroke:2px #000;letter-spacing:3px;line-height:1.05;margin-bottom:1.2rem;transform:rotate(-1deg)}
+.sub{font-family:'Permanent+Marker',cursive;font-size:1.3rem;color:#333;font-weight:400;max-width:500px;margin-left:.5rem}
+/* Word cards — comic book action boxes */
+.words{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2.5rem 0}
 @media(max-width:640px){.words{grid-template-columns:1fr}}
-.word{background:#fff;border:4px solid #000;padding:1.5rem;text-align:center;font-family:'Bangers',cursive;font-size:1.2rem;color:${p.secondary};box-shadow:5px 5px 0 #000}
+.word{background:#fff;border:4px solid #000;padding:1.8rem 1.5rem;text-align:center;font-family:'Bangers',cursive;font-size:1.4rem;color:${p.secondary};box-shadow:6px 6px 0 #000;position:relative;transition:all .25s}
+.word::after{content:'';position:absolute;top:4px;left:4px;right:4px;bottom:4px;border:2px dashed ${p.accent};opacity:0;transition:opacity .25s}
+.word:hover::after{opacity:1}
 .word:nth-child(even){transform:rotate(2deg);color:${p.accent}}
-.word:nth-child(odd){transform:rotate(-1deg)}
-.poem{background:${p.primary};color:#fff;border:4px solid #000;padding:2rem;margin:2rem 0;box-shadow:8px 8px 0 #000}
-.poem p{font-size:1.1rem;font-weight:700;margin-bottom:0.8rem}
-.poem .sig{text-align:right;font-style:italic;opacity:0.8}
-.btn{display:inline-block;padding:1rem 2.5rem;background:${p.secondary};color:#fff;border:4px solid #000;font-family:'Bangers',cursive;font-size:1.2rem;cursor:pointer;text-decoration:none;box-shadow:6px 6px 0 #000;transition:all 0.2s;margin-top:1rem}
-.btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
-footer{text-align:center;padding:2rem;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px}
-</style></head><body><div class="dot"></div><div class="w"><div class="panel"><h1>${c.headline}</h1><p class="sub">${c.subheadline}</p></div><div class="words"><div class="word">💥 ${c.word1}</div><div class="word">⚡ ${c.word2}</div><div class="word">🔥 ${c.word3}</div><div class="word">💣 ${c.word4}</div></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1}!</a><footer><p>${c.footer} · VISITOR #${n} · © 2026</p></footer></div></body></html>`;
+.word:nth-child(odd){transform:rotate(-1.5deg)}
+.word:hover{transform:rotate(0deg) scale(1.03);box-shadow:8px 8px 0 #000}
+/* Poem — speech bubble style */
+.poem{background:${p.primary};color:#fff;border:4px solid #000;padding:2.5rem;margin:2.5rem 0;box-shadow:8px 8px 0 #000;position:relative}
+.poem::before{content:'';position:absolute;bottom:-24px;left:40px;width:0;height:0;border-left:24px solid transparent;border-right:24px solid transparent;border-top:24px solid #000}
+.poem::after{content:'';position:absolute;bottom:-18px;left:44px;width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:20px solid ${p.primary}}
+.poem p{font-size:1.15rem;font-weight:700;margin-bottom:1rem;line-height:1.5}
+.poem p:last-child{margin-bottom:0}
+.poem .sig{text-align:right;font-family:'Permanent+Marker',cursive;font-style:italic;opacity:.9;font-size:1rem;margin-top:1.5rem}
+/* CTA button — comic action style */
+.btn{display:inline-block;padding:1.2rem 3rem;background:${p.secondary};color:#fff;border:4px solid #000;font-family:'Bangers',cursive;font-size:1.4rem;cursor:pointer;text-decoration:none;box-shadow:6px 6px 0 #000;transition:all .2s;margin-top:1.5rem;letter-spacing:1px;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .5s}
+.btn:hover::before{left:100%}
+.btn:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 #000}
+.btn:active{transform:translate(2px,2px);box-shadow:4px 4px 0 #000}
+/* Decorative corner zaps */
+.zap{position:absolute;font-family:'Bangers',cursive;font-size:2.5rem;color:${p.accent};opacity:.15;pointer-events:none}
+.zap-tl{top:1rem;left:1.5rem;transform:rotate(-15deg)}
+.zap-br{bottom:1rem;right:1.5rem;transform:rotate(15deg)}
+/* Footer */
+footer{text-align:center;padding:2.5rem 2rem;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:2px;color:rgba(0,0,0,.3)}
+footer strong{color:rgba(0,0,0,.5)}
+/* Star sparkle animation */
+@keyframes sparkle{0%,100%{opacity:1;transform:scale(1) rotate(0deg)}50%{opacity:.6;transform:scale(.8) rotate(180deg)}}
+.sparkle{animation:sparkle 3s ease-in-out infinite}
+</style></head><body>
+<div class="bg-dots"></div>
+<div class="burst b1"></div>
+<div class="burst b2"></div>
+<div class="burst b3"></div>
+<div class="w">
+<div class="hero">
+<span class="sparkle" style="position:absolute;top:-12px;right:20px;font-size:1.6rem">✦</span>
+<h1>${c.headline}</h1>
+<p class="sub">${c.subheadline}</p>
+</div>
+<div class="words">
+<div class="word"><span class="zap zap-tl">POW!</span>${c.word1}</div>
+<div class="word"><span class="zap zap-br">ZAP!</span>${c.word2}</div>
+<div class="word"><span class="zap zap-tl">BOOM!</span>${c.word3}</div>
+<div class="word"><span class="zap zap-br">WHAM!</span>${c.word4}</div>
+</div>
+<div class="poem"><span class="sparkle" style="position:absolute;top:-14px;left:30px;font-size:1.4rem">💥</span><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">— ${c.poem_line3}</p></div>
+<div style="text-align:center"><a class="btn">${c.cta1}</a></div>
+<footer><p><strong>${c.footer}</strong> · VISITOR #${n}</p></footer>
+</div></body></html>`;
   },
 
   // ─── 11. TERMINAL ───

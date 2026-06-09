@@ -26,7 +26,7 @@ export const COLOR_PALETTES = {
   'vaporwave': { bg: '#1a0a2e', primary: '#ff71ce', secondary: '#01cdfe', accent: '#05ffa1', text: '#ffffff', muted: '#8866aa' },
   'organic': { bg: '#f5f0e8', primary: '#2d5016', secondary: '#8b4513', accent: '#daa520', text: '#2d2d2d', muted: '#888877' },
   'space': { bg: '#000011', primary: '#4a9eff', secondary: '#9b59b6', accent: '#f39c12', text: '#e0e0ff', muted: '#404060' },
-  'pop-art': { bg: '#ffeb3b', primary: '#ff0000', secondary: '#0000ff', accent: '#ff69b4', text: '#000000', muted: '#666666' },
+  'pop-art': { bg: '#ffe000', primary: '#ff0040', secondary: '#0066ff', accent: '#ff69b4', text: '#1a1a1a', muted: '#555555' },
   'terminal': { bg: '#000000', primary: '#00ff00', secondary: '#00aa00', accent: '#ffff00', text: '#00ff00', muted: '#006600' },
   'watercolor': { bg: '#fef9f3', primary: '#e07a5f', secondary: '#3d405b', accent: '#81b29a', text: '#3d405b', muted: '#a0a0a0' },
 };
