@@ -4,44 +4,6 @@
 
 import { ART_STYLES, COLOR_PALETTES } from './art-styles.js';
 
-// A/B Testing
-const AB_TESTS = {
-  'template-pool': {
-    description: 'Test smaller vs larger template pool',
-    groups: ['a', 'b'],
-    weights: [0.5, 0.5],
-  },
-};
-
-let _abGroupCache = {};
-
-function getABGroup(visitorId, testId) {
-  const key = `${testId}:${visitorId}`;
-  if (_abGroupCache[key]) return _abGroupCache[key];
-  const test = AB_TESTS[testId];
-  if (!test) return 'a';
-  const hash = Math.abs(hashStr(visitorId + testId));
-  const rand = (hash % 100) / 100;
-  let cumulative = 0;
-  for (let i = 0; i < test.groups.length; i++) {
-    cumulative += test.weights[i];
-    if (rand < cumulative) {
-      _abGroupCache[key] = test.groups[i];
-      return test.groups[i];
-    }
-  }
-  return test.groups[0];
-}
-
-function hashStr(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h) + str.charCodeAt(i);
-    h = h & h;
-  }
-  return h;
-}
-
 let _templatesCache = null;
 let _templatesCacheTime = 0;
 
@@ -71,12 +33,6 @@ export async function generateVisit(ai, style, context, kv) {
   const palette = COLOR_PALETTES[style.id];
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-  // A/B test group
-  const abGroup = getABGroup(context.visitorId, 'template-pool');
-  if (!context.visitorId.startsWith('_ab_')) {
-    try { await kv.put(`ab:${style.id}:${abGroup}`, String((await kv.get(`ab:${style.id}:${abGroup}`) || 0) + 1), { expirationTtl: 86400 * 30 }); } catch { /* ignore */ }
-  }
-
   // Try cached AI content first (shared across all visitors today)
   let content = await getCachedContent(kv, style.id, today);
 
@@ -101,8 +57,8 @@ export async function generateVisit(ai, style, context, kv) {
     content = pickTemplate(style.id, context.visitorId, context.timestamp, templates);
   }
 
-return {
-    style, palette, content, abGroup,
+  return {
+    palette, content,
     visitorId: context.visitorId.substring(0, 8),
     visitorCount: context.visitorCount,
   };
