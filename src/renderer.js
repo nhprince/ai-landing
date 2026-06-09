@@ -5,7 +5,7 @@ export async function generateHTML(ai, context, kv) {
   const style = pickStyle(context.visitorId, context.timestamp);
   const visit = await generateVisit(ai, style, context, kv);
   const fn = RENDERERS[style.id] || RENDERERS['glassmorphism'];
-  return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount, visit.style);
+  return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount, visit.style, visit.abGroup);
 }
 
 // Shared head helper — meta tags, OG, theme-color, preconnect, favicon, animations
@@ -68,7 +68,7 @@ document.addEventListener('keydown',function(e){
 
 const R = {
   // ─── 1. CYBERPUNK ───
-  cyberpunk(p, c, vid, n, style) {
+  cyberpunk(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'cyberpunk', p)}<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"><style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
@@ -99,7 +99,7 @@ footer{text-align:center;padding:3rem 2rem;color:var(--m);font-size:0.75rem;bord
   },
 
   // ─── 2. BRUTALIST ───
-  brutalist(p, c, vid, n, style) {
+  brutalist(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'brutalist', p)}<style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:system-ui,-apple-system,sans-serif;line-height:1.6}
@@ -124,7 +124,7 @@ footer{border-top:4px solid ${p.primary};padding:2rem 0;margin-top:3rem;color:${
   },
 
   // ─── 3. GLASSMORPHISM ───
-  glassmorphism(p, c, vid, n, style) {
+  glassmorphism(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'glassmorphism', p)}<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
@@ -154,7 +154,7 @@ footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-siz
   },
 
   // ─── 4. RETRO PIXEL ───
-  'retro-pixel'(p, c, vid, n, style) {
+  'retro-pixel'(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'retro-pixel', p)}<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box;image-rendering:pixelated}
 body{background:${p.bg};color:${p.text};font-family:'VT323',monospace;font-size:1.3rem;min-height:100vh}
@@ -180,7 +180,7 @@ footer{text-align:center;padding:2rem;border-top:3px solid ${p.primary};color:${
   },
 
   // ─── 5. EDITORIAL ───
-  editorial(p, c, vid, n, style) {
+  editorial(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'editorial', p)}<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Source Serif 4',serif;line-height:1.7;font-size:1.05rem}
@@ -205,7 +205,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.85rem;bo
   },
 
   // ─── 6. JAPANESE MINIMAL ───
-  'minimal-jp'(p, c, vid, n, style) {
+  'minimal-jp'(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'minimal-jp', p, 'ja')}<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Noto Sans JP',sans-serif;font-weight:300;line-height:1.8;letter-spacing:0.05em;min-height:100vh}
@@ -228,7 +228,7 @@ footer{position:absolute;bottom:2rem;color:${p.muted};font-size:0.75rem;font-wei
   },
 
   // ─── 7. VAPORWAVE ───
-  vaporwave(p, c, vid, n, style) {
+  vaporwave(p, c, vid, n, style, abGroup) {
     return `${head('ＡＥＳＴＨＥＴＩＣ', 'vaporwave', p)}<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(135deg,${p.bg} 0%,#2a1a4e 50%,#1a0a2e 100%);color:${p.text};font-family:'Quicksand',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -252,7 +252,7 @@ footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-siz
   },
 
   // ─── 8. ORGANIC ───
-  organic(p, c, vid, n, style) {
+  organic(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'organic', p)}<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Nunito',sans-serif;line-height:1.6;min-height:100vh}
@@ -276,7 +276,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.9rem;bor
   },
 
   // ─── 9. SPACE ───
-  space(p, c, vid, n, style) {
+  space(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'space', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -305,7 +305,7 @@ for(let i=0;i<150;i++){const x=document.createElement('div');x.className='s';x.s
   },
 
   // ─── 10. POP ART ───
-  'pop-art'(p, c, vid, n, style) {
+  'pop-art'(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'pop-art', p)}<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Comic Neue',cursive;line-height:1.5;min-height:100vh}
@@ -330,7 +330,7 @@ footer{text-align:center;padding:2rem;font-family:'Bangers',cursive;font-size:1r
   },
 
   // ─── 11. TERMINAL ───
-  terminal(p, c, vid, n, style) {
+  terminal(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'terminal', p)}<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.primary};font-family:'Fira Code',monospace;font-size:0.9rem;line-height:1.6;min-height:100vh}
@@ -357,7 +357,7 @@ h1{font-size:clamp(1.2rem,3vw,2rem);color:#fff;margin-bottom:0.5rem;font-weight:
   },
 
   // ─── 12. WATERCOLOR ───
-  watercolor(p, c, vid, n, style) {
+  watercolor(p, c, vid, n, style, abGroup) {
     return `${head(c.headline, 'watercolor', p)}<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Kalam',cursive;line-height:1.7;min-height:100vh;overflow-x:hidden}
