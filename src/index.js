@@ -26,8 +26,12 @@ export default {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': isBot ? 'public, max-age=3600' : 'no-cache, no-store, must-revalidate',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Referrer-Policy': 'no-referrer',
+        'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'",
         'X-Visitor-Id': visitorId.substring(0, 8),
-        'X-Robots-Tag': 'noindex, nofollow',  // Don't index dynamic art pages
+        'X-Robots-Tag': 'noindex, nofollow',
       },
     });
   },

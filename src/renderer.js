@@ -8,11 +8,31 @@ export async function generateHTML(ai, context, kv) {
   return fn(visit.palette, visit.content, visit.visitorId, visit.visitorCount);
 }
 
+// Shared head helper — meta tags, OG, theme-color, preconnect
+function head(title, styleId, palette) {
+  const desc = 'A generative art experience — every visit shows something different';
+  const themeColor = palette.bg;
+  return `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<meta name="description" content="${desc}">
+<meta name="theme-color" content="${themeColor}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${desc}">
+<meta property="og:type" content="website">
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:title" content="${title}">
+<meta property="twitter:description" content="${desc}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`;
+}
+
 const R = {
   // ─── 1. CYBERPUNK ───
   cyberpunk(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"><style>
-*{margin:0;padding:0;box-sizing:border-box}
+    return `${head(c.headline, 'cyberpunk', p)}<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"><style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
 body{background:var(--bg);color:var(--t);font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(transparent 50%,rgba(0,240,255,0.03) 50%);background-size:100% 4px;pointer-events:none;z-index:9999;animation:scan 8s linear infinite}
@@ -42,7 +62,7 @@ footer{text-align:center;padding:3rem 2rem;color:var(--m);font-size:0.75rem;bord
 
   // ─── 2. BRUTALIST ───
   brutalist(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><style>
+    return `${head(c.headline, 'brutalist', p)}<style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:system-ui,-apple-system,sans-serif;line-height:1.6}
 .w{max-width:800px;margin:0 auto;padding:3rem 2rem}
@@ -67,7 +87,7 @@ footer{border-top:4px solid ${p.primary};padding:2rem 0;margin-top:3rem;color:${
 
   // ─── 3. GLASSMORPHISM ───
   glassmorphism(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'glassmorphism', p)}<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
 body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -97,7 +117,7 @@ footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-siz
 
   // ─── 4. RETRO PIXEL ───
   'retro-pixel'(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>★ ${c.headline} ★</title><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'retro-pixel', p)}<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box;image-rendering:pixelated}
 body{background:${p.bg};color:${p.text};font-family:'VT323',monospace;font-size:1.3rem;min-height:100vh}
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,0.1) 50%);background-size:100% 4px;pointer-events:none;z-index:9999}
@@ -123,7 +143,7 @@ footer{text-align:center;padding:2rem;border-top:3px solid ${p.primary};color:${
 
   // ─── 5. EDITORIAL ───
   editorial(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'editorial', p)}<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Source Serif 4',serif;line-height:1.7;font-size:1.05rem}
 .w{max-width:700px;margin:0 auto;padding:4rem 2rem}
@@ -148,7 +168,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.85rem;bo
 
   // ─── 6. JAPANESE MINIMAL ───
   'minimal-jp'(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'minimal-jp', p)}<html lang="ja"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Noto Sans JP',sans-serif;font-weight:300;line-height:1.8;letter-spacing:0.05em;min-height:100vh}
 body::before{content:'';position:fixed;top:50%;left:50%;width:400px;height:400px;border-radius:50%;border:1px solid rgba(0,0,0,0.03);transform:translate(-50%,-50%);pointer-events:none;animation:br 8s ease-in-out infinite}
@@ -195,7 +215,7 @@ footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-siz
 
   // ─── 8. ORGANIC ───
   organic(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'vaporwave', p)}<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Nunito',sans-serif;line-height:1.6;min-height:100vh}
 .b{position:fixed;border-radius:60% 40% 30% 70%/60% 30% 70% 40%;filter:blur(60px);opacity:0.12;pointer-events:none;animation:m 15s ease-in-out infinite}
@@ -219,7 +239,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.9rem;bor
 
   // ─── 9. SPACE ───
   space(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'organic', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
 #stars{position:fixed;inset:0;pointer-events:none}
@@ -248,7 +268,7 @@ for(let i=0;i<150;i++){const x=document.createElement('div');x.className='s';x.s
 
   // ─── 10. POP ART ───
   'pop-art'(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>WOW! ${c.headline}!</title><link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'pop-art', p)}<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Comic Neue',cursive;line-height:1.5;min-height:100vh}
 .dot{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(0,0,0,0.06) 1px,transparent 1px);background-size:6px 6px}
@@ -273,7 +293,7 @@ footer{text-align:center;padding:2rem;font-family:'Bangers',cursive;font-size:1r
 
   // ─── 11. TERMINAL ───
   terminal(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>$ cat /dev/art</title><link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'terminal', p)}<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.primary};font-family:'Fira Code',monospace;font-size:0.9rem;line-height:1.6;min-height:100vh}
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(transparent 50%,rgba(0,255,0,0.02) 50%);background-size:100% 2px;pointer-events:none;z-index:9999}
@@ -300,7 +320,7 @@ h1{font-size:clamp(1.2rem,3vw,2rem);color:#fff;margin-bottom:0.5rem;font-weight:
 
   // ─── 12. WATERCOLOR ───
   watercolor(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${c.headline}</title><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'watercolor', p)}<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Kalam',cursive;line-height:1.7;min-height:100vh;overflow-x:hidden}
 .wash{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.1;pointer-events:none}
