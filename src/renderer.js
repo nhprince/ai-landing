@@ -9,10 +9,10 @@ export async function generateHTML(ai, context, kv) {
 }
 
 // Shared head helper — meta tags, OG, theme-color, preconnect
-function head(title, styleId, palette) {
+function head(title, styleId, palette, lang = 'en') {
   const desc = 'A generative art experience — every visit shows something different';
   const themeColor = palette.bg;
-  return `<!DOCTYPE html><html lang="en"><head>
+  return `<!DOCTYPE html><html lang="${lang}"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${title}</title>
@@ -25,7 +25,8 @@ function head(title, styleId, palette) {
 <meta property="twitter:title" content="${title}">
 <meta property="twitter:description" content="${desc}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`;
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">`;
 }
 
 const R = {
@@ -168,7 +169,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.85rem;bo
 
   // ─── 6. JAPANESE MINIMAL ───
   'minimal-jp'(p, c, vid, n) {
-    return `${head(c.headline, 'minimal-jp', p)}<html lang="ja"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'minimal-jp', p, 'ja')}<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Noto Sans JP',sans-serif;font-weight:300;line-height:1.8;letter-spacing:0.05em;min-height:100vh}
 body::before{content:'';position:fixed;top:50%;left:50%;width:400px;height:400px;border-radius:50%;border:1px solid rgba(0,0,0,0.03);transform:translate(-50%,-50%);pointer-events:none;animation:br 8s ease-in-out infinite}
@@ -191,7 +192,7 @@ footer{position:absolute;bottom:2rem;color:${p.muted};font-size:0.75rem;font-wei
 
   // ─── 7. VAPORWAVE ───
   vaporwave(p, c, vid, n) {
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ＡＥＳＴＨＥＴＩＣ</title><link href="https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;600&display=swap" rel="stylesheet"><style>
+    return `${head('ＡＥＳＴＨＥＴＩＣ', 'vaporwave', p)}<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(135deg,${p.bg} 0%,#2a1a4e 50%,#1a0a2e 100%);color:${p.text};font-family:'Quicksand',sans-serif;min-height:100vh;overflow-x:hidden}
 .mesh{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% 50%,rgba(255,113,206,0.12) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(1,205,254,0.08) 0%,transparent 50%)}
@@ -215,7 +216,7 @@ footer{text-align:center;padding:3rem 2rem;color:rgba(255,255,255,0.15);font-siz
 
   // ─── 8. ORGANIC ───
   organic(p, c, vid, n) {
-    return `${head(c.headline, 'vaporwave', p)}<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'organic', p)}<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Nunito',sans-serif;line-height:1.6;min-height:100vh}
 .b{position:fixed;border-radius:60% 40% 30% 70%/60% 30% 70% 40%;filter:blur(60px);opacity:0.12;pointer-events:none;animation:m 15s ease-in-out infinite}
@@ -239,7 +240,7 @@ footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-size:0.9rem;bor
 
   // ─── 9. SPACE ───
   space(p, c, vid, n) {
-    return `${head(c.headline, 'organic', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
+    return `${head(c.headline, 'space', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:${p.bg};color:${p.text};font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
 #stars{position:fixed;inset:0;pointer-events:none}
@@ -282,7 +283,7 @@ h1{font-family:'Bangers',cursive;font-size:clamp(2.5rem,6vw,5rem);color:${p.prim
 .word{background:#fff;border:4px solid #000;padding:1.5rem;text-align:center;font-family:'Bangers',cursive;font-size:1.2rem;color:${p.secondary};box-shadow:5px 5px 0 #000}
 .word:nth-child(even){transform:rotate(2deg);color:${p.accent}}
 .word:nth-child(odd){transform:rotate(-1deg)}
-.poem{background:${p.primary});color:#fff;border:4px solid #000;padding:2rem;margin:2rem 0;box-shadow:8px 8px 0 #000}
+.poem{background:${p.primary};color:#fff;border:4px solid #000;padding:2rem;margin:2rem 0;box-shadow:8px 8px 0 #000}
 .poem p{font-size:1.1rem;font-weight:700;margin-bottom:0.8rem}
 .poem .sig{text-align:right;font-style:italic;opacity:0.8}
 .btn{display:inline-block;padding:1rem 2.5rem;background:${p.secondary};color:#fff;border:4px solid #000;font-family:'Bangers',cursive;font-size:1.2rem;cursor:pointer;text-decoration:none;box-shadow:6px 6px 0 #000;transition:all 0.2s;margin-top:1rem}
@@ -311,7 +312,7 @@ h1{font-size:clamp(1.2rem,3vw,2rem);color:#fff;margin-bottom:0.5rem;font-weight:
 .word::before{content:'  ';color:${p.accent}}
 .poem{margin:1.5rem 0}
 .poem p{color:rgba(0,255,0,0.5);margin-bottom:0.3rem}
-.poem .sig{color:${p.accent})}
+.poem .sig{color:${p.accent}}}
 .btn{display:inline-block;padding:0.8rem 2rem;background:transparent;color:${p.primary};border:1px solid ${p.primary};font-family:'Fira Code',monospace;font-size:0.85rem;cursor:pointer;text-decoration:none;transition:all 0.3s;margin-top:1rem}
 .btn:hover{background:${p.primary};color:#000}
 .bar{position:fixed;bottom:0;left:0;right:0;padding:0.5rem 2rem;background:rgba(0,255,0,0.03);border-top:1px solid rgba(0,255,0,0.08);font-size:0.7rem;display:flex;justify-content:space-between}
