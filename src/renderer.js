@@ -397,6 +397,220 @@ h1{font-family:'Caveat',cursive;font-size:clamp(2.5rem,5vw,4rem);font-weight:700
 footer{text-align:center;padding:3rem 2rem;color:${p.muted};font-family:'Caveat',cursive;font-size:1.1rem}
 </style></head><body><div class="wash w1"></div><div class="wash w2"></div><div class="w"><div class="frame"><h1>${c.headline}</h1><p class="sub">${c.subheadline}</p><div class="words"><span class="word">${c.word1}</span><span class="word">${c.word2}</span><span class="word">${c.word3}</span><span class="word">${c.word4}</span></div><div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div><a class="btn">${c.cta1} →</a></div><footer><p>${c.footer} · Visitor #${n} · ✿</p></footer></div></body></html>`;
   },
+
+  // ─── 13. HOLOGRAPHIC 3D — Holographic projection with 3D depth, scanlines, floating particles ───
+  holographic(p, c, vid, n) {
+    return `${head(c.headline, 'holographic', p)}<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet"><style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
+body{background:var(--bg);color:var(--t);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;perspective:1200px}
+.grid-floor{position:fixed;bottom:0;left:0;right:0;height:50vh;background:linear-gradient(to top,var(--p)0D,transparent);transform:rotateX(60deg);transform-origin:bottom;animation:gridPulse 4s ease-in-out infinite}
+.grid-floor::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--p)15 1px,transparent 1px),linear-gradient(90deg,var(--p)15 1px,transparent 1px);background-size:60px 60px;animation:gridScroll 3s linear infinite}
+@keyframes gridPulse{0%,100%{opacity:0.3}50%{opacity:0.6}}
+@keyframes gridScroll{0%{transform:translateY(0)}100%{transform:translateY(60px)}}
+.particles{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:4px;height:4px;background:var(--p);border-radius:50%;animation:floatParticle linear infinite;box-shadow:0 0 10px var(--p),0 0 20px var(--s)}
+.particle:nth-child(1){left:10%;animation-duration:8s;animation-delay:0s}
+.particle:nth-child(2){left:20%;animation-duration:12s;animation-delay:1s;width:3px;height:3px}
+.particle:nth-child(3){left:35%;animation-duration:10s;animation-delay:2s;width:5px;height:5px}
+.particle:nth-child(4){left:50%;animation-duration:14s;animation-delay:0.5s}
+.particle:nth-child(5){left:65%;animation-duration:9s;animation-delay:3s;width:2px;height:2px}
+.particle:nth-child(6){left:75%;animation-duration:11s;animation-delay:1.5s;width:6px;height:6px}
+.particle:nth-child(7){left:85%;animation-duration:13s;animation-delay:2.5s}
+.particle:nth-child(8){left:95%;animation-duration:7s;animation-delay:4s;width:3px;height:3px}
+@keyframes floatParticle{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100px) scale(1);opacity:0}}
+.stage{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;position:relative;z-index:1}
+.holo-container{position:relative;width:100%;max-width:800px;transform-style:preserve-3d;animation:holoFloat 6s ease-in-out infinite}
+@keyframes holoFloat{0%,100%{transform:translateY(0) rotateY(0deg)}25%{transform:translateY(-15px) rotateY(2deg)}50%{transform:translateY(0) rotateY(0deg)}75%{transform:translateY(-10px) rotateY(-2deg)}}
+.holo-card{background:linear-gradient(135deg,rgba(0,240,255,0.03),rgba(255,0,255,0.02),rgba(255,240,0,0.02));border:1px solid rgba(0,240,255,0.15);border-radius:2rem;padding:3rem;position:relative;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(0,240,255,0.08),inset 0 0 60px rgba(0,240,255,0.03);transform-style:preserve-3d}
+.holo-card::before{content:'';position:absolute;inset:-1px;border-radius:2rem;background:linear-gradient(135deg,var(--p),var(--s),var(--a),var(--p));background-size:400% 400%;animation:holoBorder 8s linear infinite;z-index:-1;opacity:0.3}
+.holo-card::after{content:'';position:absolute;inset:0;border-radius:2rem;background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 50%);pointer-events:none}
+@keyframes holoBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.015) 2px,rgba(0,240,255,0.015) 4px);animation:scanMove 10s linear infinite}
+@keyframes scanMove{0%{transform:translateY(0)}100%{transform:translateY(4px)}}
+h1{font-family:'Orbitron',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:900;color:var(--p);text-align:center;margin-bottom:1.5rem;position:relative;text-shadow:0 0 30px var(--p)4D,0 0 60px var(--s)2D;animation:holoText 3s ease-in-out infinite alternate}
+@keyframes holoText{0%{text-shadow:0 0 30px var(--p)4D,0 0 60px var(--s)2D,2px 0 0 var(--s)3D}100%{text-shadow:0 0 40px var(--p)6D,0 0 80px var(--s)3D,-2px 0 0 var(--a)3D}}
+.sub{font-size:1.2rem;color:var(--m);text-align:center;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.words{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2.5rem 0;perspective:800px}
+@media(max-width:640px){.words{grid-template-columns:1fr}}
+.word{background:linear-gradient(135deg,rgba(0,240,255,0.05),rgba(255,0,255,0.03));border:1px solid rgba(0,240,255,0.12);border-radius:1rem;padding:1.5rem;text-align:center;font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--p);transform-style:preserve-3d;transition:all 0.5s cubic-bezier(0.4,0,0.2,1);cursor:default;position:relative;overflow:hidden}
+.word::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,240,255,0.1),transparent);transition:left 0.5s}
+.word:hover::before{left:100%}
+.word:hover{transform:translateZ(30px) rotateX(-5deg) rotateY(5deg);border-color:var(--p);box-shadow:0 20px 40px rgba(0,240,255,0.15),0 0 30px rgba(0,240,255,0.1)}
+.word:nth-child(even):hover{transform:translateZ(30px) rotateX(5deg) rotateY(-5deg)}
+.poem{margin:2.5rem 0;padding:2rem;border:1px solid rgba(0,240,255,0.1);border-radius:1.5rem;background:rgba(0,240,255,0.02);position:relative;overflow:hidden}
+.poem::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,var(--p),var(--s),var(--a));animation:glowPulse 2s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+.poem p{color:var(--m);font-size:1.05rem;line-height:2;margin-bottom:0.8rem;padding-left:1rem}
+.poem p:last-child{margin-bottom:0}
+.poem .sig{color:var(--p);font-style:italic;text-align:right}
+.btn{display:inline-block;padding:1.2rem 3rem;background:linear-gradient(135deg,var(--p),var(--s));color:#000;border:none;border-radius:999px;font-family:'Orbitron',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:all 0.4s;box-shadow:0 0 30px rgba(0,240,255,0.2)}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transition:left 0.6s}
+.btn:hover::before{left:100%}
+.btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 50px rgba(0,240,255,0.4)}
+footer{text-align:center;padding:2.5rem;color:var(--m);font-size:0.85rem;font-family:'Orbitron',sans-serif;letter-spacing:2px}
+@media(max-width:640px){.holo-card{padding:2rem 1.5rem}.stage{padding:2rem 1rem}}
+</style></head><body>
+<div class="grid-floor"></div>
+<div class="particles">
+<div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+<div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+</div>
+<div class="scanlines"></div>
+<div class="stage">
+<div class="holo-container">
+<div class="holo-card">
+<h1>${c.headline}</h1>
+<p class="sub">${c.subheadline}</p>
+<div class="words">
+<div class="word">${c.word1}</div>
+<div class="word">${c.word2}</div>
+<div class="word">${c.word3}</div>
+<div class="word">${c.word4}</div>
+</div>
+<div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div>
+<div style="text-align:center"><a class="btn">${c.cta1}</a></div>
+</div>
+</div>
+</div>
+<footer><p>${c.footer} · Visitor #${n}</p></footer>
+</body></html>`;
+  },
+
+  // ─── 14. PARTICLE GALAXY — Interactive canvas particle system with mouse repulsion ───
+  'particle-galaxy'(p, c, vid, n) {
+    return `${head(c.headline, 'particle-galaxy', p)}<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"><style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
+body{background:var(--bg);color:var(--t);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow:hidden}
+#galaxy-canvas{position:fixed;inset:0;z-index:0}
+.overlay{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 70%)}
+.glass{background:rgba(255,255,255,0.02);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.06);border-radius:2rem;padding:3rem;max-width:800px;width:100%;position:relative;overflow:hidden}
+.glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)}
+@media(max-width:640px){.glass{padding:2rem 1.5rem;border-radius:1.5rem}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;text-align:center;margin-bottom:1.5rem;background:linear-gradient(135deg,var(--p),var(--s),var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% 200%;animation:gradientShift 5s ease infinite}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.sub{font-size:1.15rem;color:var(--m);text-align:center;max-width:500px;margin:0 auto 2.5rem;line-height:1.7}
+.orbit-container{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:2.5rem 0}
+.orbit-word{padding:0.8rem 1.6rem;border:1px solid rgba(255,255,255,0.08);border-radius:999px;font-size:0.95rem;color:var(--p);background:rgba(255,255,255,0.02);transition:all 0.4s cubic-bezier(0.4,0,0.2,1);cursor:default}
+.orbit-word:hover{border-color:var(--p);transform:scale(1.05);box-shadow:0 0 20px rgba(255,255,255,0.05)}
+.poem{margin:2.5rem 0;padding:2rem;border-left:2px solid;border-image:linear-gradient(to bottom,var(--p),var(--s)) 1}
+.poem p{color:var(--m);font-size:1.05rem;line-height:2;margin-bottom:0.8rem}
+.poem p:last-child{margin-bottom:0}
+.poem .sig{color:var(--p);font-style:italic;text-align:right}
+.btn{display:inline-block;padding:1.2rem 3rem;background:transparent;color:var(--p);border:2px solid var(--p);border-radius:999px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;transition:all 0.4s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:0;left:0;width:0;height:100%;background:var(--p);transition:width 0.4s cubic-bezier(0.4,0,0.2,1);z-index:-1}
+.btn:hover::before{width:100%}
+.btn:hover{color:#000}
+footer{text-align:center;padding:2.5rem;color:var(--m);font-size:0.8rem;letter-spacing:3px;text-transform:uppercase}
+</style></head><body>
+<canvas id="galaxy-canvas"></canvas>
+<div class="overlay">
+<div class="glass">
+<h1>${c.headline}</h1>
+<p class="sub">${c.subheadline}</p>
+<div class="orbit-container">
+<span class="orbit-word">${c.word1}</span>
+<span class="orbit-word">${c.word2}</span>
+<span class="orbit-word">${c.word3}</span>
+<span class="orbit-word">${c.word4}</span>
+</div>
+<div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div>
+<div style="text-align:center"><a class="btn">${c.cta1}</a></div>
+</div>
+<footer><p>${c.footer} · #${n}</p></footer>
+</div>
+<script>
+(function(){
+const c=document.getElementById('galaxy-canvas'),x=c.getContext('2d');
+let w,h,particles=[];
+function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+const colors=['${p.primary}','${p.secondary}','${p.accent}'];
+for(let i=0;i<120;i++){particles.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,r:Math.random()*2+0.5,c:colors[i%3],a:Math.random()*0.5+0.2})}
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+function draw(){
+x.clearRect(0,0,w,h);
+for(let i=0;i<particles.length;i++){
+let p=particles[i];
+p.x+=p.vx;p.y+=p.vy;
+if(p.x<0)p.x=w;if(p.x>w)p.x=0;
+if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+let dx=mx-p.x,dy=my-p.y,d=Math.sqrt(dx*dx+dy*dy);
+if(d<200){let f=(200-d)/200;p.vx+=dx*f*0.0003;p.vy+=dy*f*0.0003}
+p.vx*=0.999;p.vy*=0.999;
+x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle=p.c;x.globalAlpha=p.a;x.fill();
+for(let j=i+1;j<particles.length;j++){
+let q=particles[j],dx2=p.x-q.x,dy2=p.y-q.y,d2=Math.sqrt(dx2*dx2+dy2*dy2);
+if(d2<120){x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.strokeStyle=p.c;x.globalAlpha=(1-d2/120)*0.15;x.stroke()}}}
+requestAnimationFrame(draw);
+}
+draw();
+})();
+</script>
+</body></html>`;
+  },
+
+  // ─── 15. LIQUID MORPH — SVG filter-based liquid distortion with morphing blobs ───
+  'liquid-morph'(p, c, vid, n) {
+    return `${head(c.headline, 'liquid-morph', p)}<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"><style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:${p.bg};--p:${p.primary};--s:${p.secondary};--a:${p.accent};--t:${p.text};--m:${p.muted}}
+body{background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+.blobs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.25;animation:morphBlob 15s ease-in-out infinite}
+.blob:nth-child(1){width:600px;height:600px;background:var(--p);top:-150px;left:-150px;animation-delay:0s}
+.blob:nth-child(2){width:500px;height:500px;background:var(--s);bottom:-150px;right:-150px;animation-delay:-5s}
+.blob:nth-child(3){width:400px;height:400px;background:var(--a);top:40%;left:40%;animation-delay:-10s}
+@keyframes morphBlob{0%,100%{border-radius:50% 50% 50% 50%;transform:translate(0,0) scale(1) rotate(0deg)}25%{border-radius:60% 40% 70% 30%;transform:translate(30px,-20px) scale(1.1) rotate(90deg)}50%{border-radius:30% 70% 50% 50%;transform:translate(-20px,30px) scale(0.9) rotate(180deg)}75%{border-radius:70% 30% 40% 60%;transform:translate(10px,10px) scale(1.05) rotate(270deg)}}
+.wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;position:relative;z-index:1}
+.liquid-card{background:rgba(255,255,255,0.02);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.06);border-radius:2.5rem;padding:3.5rem;max-width:800px;width:100%;position:relative;overflow:hidden;transition:all 0.6s cubic-bezier(0.4,0,0.2,1)}
+.liquid-card::before{content:'';position:absolute;inset:0;border-radius:2.5rem;background:linear-gradient(135deg,rgba(255,255,255,0.03),transparent 50%);pointer-events:none}
+.liquid-card::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,0.02),transparent,rgba(255,255,255,0.02),transparent);animation:liquidSpin 20s linear infinite;pointer-events:none}
+@keyframes liquidSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@media(max-width:640px){.liquid-card{padding:2rem 1.5rem;border-radius:1.5rem}}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:900;text-align:center;margin-bottom:1.5rem;line-height:1.1;position:relative;color:var(--p)}
+h1::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:3px;background:linear-gradient(90deg,var(--p),var(--s));border-radius:2px;animation:lineExpand 3s ease-in-out infinite}
+@keyframes lineExpand{0%,100%{width:60px;opacity:0.5}50%{width:120px;opacity:1}}
+.sub{font-size:1.15rem;color:var(--m);text-align:center;max-width:500px;margin:2rem auto 2.5rem;line-height:1.8;font-style:italic}
+.flow-words{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:2.5rem 0}
+.flow-word{padding:1rem 2rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:1.5rem;font-family:'Playfair Display',serif;font-size:1.1rem;font-style:italic;color:var(--p);transition:all 0.5s cubic-bezier(0.4,0,0.2,1);cursor:default;position:relative;overflow:hidden}
+.flow-word::before{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--p),var(--s));transform:scaleX(0);transform-origin:left;transition:transform 0.4s}
+.flow-word:hover::before{transform:scaleX(1)}
+.flow-word:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.1);box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.poem{margin:2.5rem 0;padding:2.5rem;position:relative}
+.poem::before{content:'';position:absolute;inset:0;border-radius:1.5rem;background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);pointer-events:none}
+.poem p{color:var(--m);font-family:'Playfair Display',serif;font-size:1.1rem;line-height:2.2;margin-bottom:1rem;position:relative}
+.poem p:last-child{margin-bottom:0}
+.poem .sig{color:var(--p);font-style:italic;text-align:right;font-weight:700}
+.btn{display:inline-block;padding:1.2rem 3.5rem;background:transparent;color:var(--t);border:1px solid rgba(255,255,255,0.1);border-radius:999px;font-family:'Inter',sans-serif;font-weight:600;font-size:1rem;cursor:pointer;text-decoration:none;transition:all 0.5s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;letter-spacing:1px}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--p),var(--s));opacity:0;transition:opacity 0.5s;border-radius:999px}
+.btn:hover::before{opacity:1}
+.btn:hover{border-color:transparent;transform:translateY(-3px);box-shadow:0 15px 40px rgba(0,0,0,0.3)}
+.btn span{position:relative;z-index:1}
+footer{text-align:center;padding:2.5rem;color:var(--m);font-size:0.8rem;letter-spacing:2px}
+</style></head><body>
+<div class="blobs">
+<div class="blob"></div><div class="blob"></div><div class="blob"></div>
+</div>
+<div class="wrap">
+<div class="liquid-card">
+<h1>${c.headline}</h1>
+<p class="sub">${c.subheadline}</p>
+<div class="flow-words">
+<span class="flow-word">${c.word1}</span>
+<span class="flow-word">${c.word2}</span>
+<span class="flow-word">${c.word3}</span>
+<span class="flow-word">${c.word4}</span>
+</div>
+<div class="poem"><p>${c.poem_line1}</p><p>${c.poem_line2}</p><p class="sig">${c.poem_line3}</p></div>
+<div style="text-align:center"><a class="btn"><span>${c.cta1}</span></a></div>
+</div>
+<footer><p>${c.footer} · Visitor #${n}</p></footer>
+</div>
+</body></html>`;
+  },
 };
 
 const RENDERERS = R;

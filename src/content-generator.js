@@ -69,7 +69,7 @@ async function generateAIContent(ai, style) {
   // Short prompt = fewer input tokens = cheaper
   const prompt = `Creative "${style.name}" web art. Return JSON:
 {"headline":"<10 words","subheadline":"<20 words","cta1":"<4 words","cta2":"<4 words","word1":"<3 words","word2":"<3 words","word3":"<3 words","word4":"<3 words","poem_line1":"<15 words","poem_line2":"<15 words","poem_line3":"<15 words","footer":"<15 words"}
-Be ${style.name === 'Japanese Minimal' ? 'zen' : style.name === 'Cyberpunk' ? 'edgy' : style.name === 'Brutalist' ? 'raw' : style.name === 'Pop Art' ? 'loud' : style.name === 'Terminal' ? 'hacker-ish' : 'creative'}.`;
+Be ${style.name === 'Japanese Minimal' ? 'zen' : style.name === 'Cyberpunk' ? 'edgy' : style.name === 'Brutalist' ? 'raw' : style.name === 'Pop Art' ? 'loud' : style.name === 'Terminal' ? 'hacker-ish' : style.name === 'Holographic 3D' ? 'futuristic holographic sci-fi' : style.name === 'Particle Galaxy' ? 'cosmic ethereal space' : style.name === 'Liquid Morph' ? 'fluid dreamy abstract' : 'creative'}.`;
 
   const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
     prompt,

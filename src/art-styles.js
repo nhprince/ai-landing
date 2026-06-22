@@ -13,6 +13,9 @@ export const ART_STYLES = [
   { id: 'pop-art', name: 'Pop Art Explosion' },
   { id: 'terminal', name: 'Hacker Terminal' },
   { id: 'watercolor', name: 'Watercolor Dream' },
+  { id: 'holographic', name: 'Holographic 3D' },
+  { id: 'particle-galaxy', name: 'Particle Galaxy' },
+  { id: 'liquid-morph', name: 'Liquid Morph' },
 ];
 
 // Color palettes per style
@@ -29,4 +32,7 @@ export const COLOR_PALETTES = {
   'pop-art': { bg: '#ffe000', primary: '#ff0040', secondary: '#0066ff', accent: '#ff69b4', text: '#1a1a1a', muted: '#555555' },
   'terminal': { bg: '#000000', primary: '#00ff00', secondary: '#00aa00', accent: '#ffff00', text: '#00ff00', muted: '#006600' },
   'watercolor': { bg: '#fef9f3', primary: '#e07a5f', secondary: '#3d405b', accent: '#81b29a', text: '#3d405b', muted: '#a0a0a0' },
+  'holographic': { bg: '#050510', primary: '#00f0ff', secondary: '#ff00ff', accent: '#fff000', text: '#e0e0ff', muted: '#404060' },
+  'particle-galaxy': { bg: '#080212', primary: '#c084fc', secondary: '#818cf8', accent: '#e879f9', text: '#e0e0ff', muted: '#505070' },
+  'liquid-morph': { bg: '#0a0820', primary: '#34d399', secondary: '#2dd4bf', accent: '#22d3ee', text: '#d0f0e0', muted: '#507070' },
 };
